@@ -100,6 +100,7 @@ fun NoteApp(viewModel: NotesViewModel){
         ) {
             AddNoteScreen(
                 state = viewModel.state.collectAsState().value,
+                addEditState = viewModel.addEditState.collectAsState().value,
                 navController = navController,
                 onEvent = viewModel::onEvent,
                 noteId = null
@@ -112,6 +113,7 @@ fun NoteApp(viewModel: NotesViewModel){
             val noteId = entry.arguments?.getInt("noteId")
             AddNoteScreen(
                 state = viewModel.state.collectAsState().value,
+                addEditState = viewModel.addEditState.collectAsState().value,
                 navController = navController,
                 onEvent = viewModel::onEvent,
                 noteId = noteId

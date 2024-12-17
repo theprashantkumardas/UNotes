@@ -51,6 +51,11 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.androidx.navigation.compose.v285)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.coil.compose)
+    implementation(libs.firebase.crashlytics.buildtools)
+    implementation(libs.gson)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit.v115)

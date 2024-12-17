@@ -11,6 +11,8 @@ data class Note(
     val title: String,
     val description: String,
     val dateAdded: Long,
+    val imageUris: List<String>? = null,
+    val videoUris: List<String>? = null,
     val timestamp: Long // Add timestamp field to store the creation date
 
 )

@@ -11,4 +11,9 @@ sealed interface NoteEvent {
 
     data class UpdateNote(val noteId: Int, val title: String, val description: String) : NoteEvent
 
+    data class AddImage(val uri: List<String>) : NoteEvent
+    data class AddVideo(val uri: List<String>) : NoteEvent
+
+    object ClearState : NoteEvent
+
 }
