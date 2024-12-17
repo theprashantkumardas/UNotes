@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -53,6 +55,7 @@ import com.example.unotes.roomdatabase.presentation.NoteEvent
 import com.example.unotes.roomdatabase.presentation.NoteState
 import com.example.unotes.ui.theme.AssistChipAddOnlyBtn
 import com.example.unotes.ui.theme.AssistChipExample
+import com.example.unotes.ui.theme.DescriptionDisplay
 import com.example.unotes.ui.theme.MoreOptionsButton
 import com.example.unotes.ui.theme.satoshiLight
 import com.example.unotes.ui.theme.satoshiRegular
@@ -131,7 +134,7 @@ fun NotesScreen(
                                 fontSize = 20.sp,
                                 fontFamily = satoshiLight,
                                 color = MaterialTheme.colorScheme.onPrimary,
-                                ),
+                            ),
                             decorationBox = { innerTextField ->
                                 if( searchQuery.isEmpty()) {
                                     Text(
@@ -142,12 +145,12 @@ fun NotesScreen(
                                         modifier = Modifier.align(alignment = Alignment.CenterVertically),
 
 
-                                    )
+                                        )
                                 }
                                 innerTextField()
                             },
 
-                        )
+                            )
                     }
                 }
             )
@@ -155,8 +158,6 @@ fun NotesScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                state.title.value = ""
-                state.description.value = ""
                 navController.navigate("AddNoteScreen")
             },
                 containerColor = MaterialTheme.colorScheme.primary,
@@ -174,42 +175,52 @@ fun NotesScreen(
                 .fillMaxWidth()
                 .padding(paddingValues)
         ) {
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                item {
-                    AssistChipExample(
-                        tag = "All Notes",
-                    )
+//            if (state.isLoading){
+//                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+//                    CircularProgressIndicator()
+//                }
+//            } else if (state.error != null){
+//                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+//                    Text(text = state.error)
+//                }
+//            } else {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    item {
+                        AssistChipExample(
+                            tag = "All Notes",
+                        )
+                    }
+                    items(state.notes.map { it.title }) { tag ->
+                        AssistChipExample(tag)
+                    }
+                    item {
+                        AssistChipAddOnlyBtn()
+                    }
                 }
-                items(state.notes.map { it.title }) { tag ->
-                    AssistChipExample(tag)
+                LazyVerticalStaggeredGrid(
+                    columns = StaggeredGridCells.Fixed(2),
+                    contentPadding = PaddingValues(0.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalItemSpacing = 16.dp,
+                ){
+                    items(state.notes.size){ index ->
+                        NoteItem(
+                            note = state.notes[index],
+                            onEvent = onEvent,
+                            navController = navController
+                        )
+                    }
                 }
-                item {
-                    AssistChipAddOnlyBtn()
-                }
-            }
-            LazyVerticalStaggeredGrid(
-                columns = StaggeredGridCells.Fixed(2),
-                contentPadding = PaddingValues(0.dp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalItemSpacing = 16.dp,
-            ){
-                items(state.notes.size){ index ->
-                    NoteItem(
-                        note = state.notes[index],
-                        onEvent = onEvent,
-                        navController = navController
-                    )
-                }
-            }
+//            }
         }
     }
 }
@@ -262,13 +273,7 @@ fun NoteItem(
             Spacer(modifier = Modifier.height(8.dp))
             HorizontalDivider(thickness = 1.dp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = note.description,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onPrimary,
-                maxLines = 6, // Set the maximum number of lines for the description
-                overflow = TextOverflow.Ellipsis // Add ellipsis (...) if the text overflows
-            )
+            DescriptionDisplay(description = note.description)
             Spacer(modifier = Modifier.height(8.dp))
             Column (
                 modifier = Modifier
@@ -291,7 +296,6 @@ fun formatTimestamp(timestamp: Long): String {
 //    val dateFormat = SimpleDateFormat("hh:mm a dd MMM yy", Locale.getDefault())
     return dateFormat.format(Date(timestamp))
 }
-
 
 
 

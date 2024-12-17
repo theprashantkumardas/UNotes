@@ -1,6 +1,5 @@
 package com.example.unotes.ui.theme
 
-import android.media.browse.MediaBrowser
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,22 +10,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
 import com.example.unotes.roomdatabase.presentation.DescriptionItem
-import com.google.android.exoplayer2.ui.StyledPlayerView
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.ui.StyledPlayerView
+
 @Composable
 fun DescriptionDisplay(description: String) {
     val items = parseDescription(description)
@@ -53,9 +41,10 @@ fun DescriptionDisplay(description: String) {
                             .padding(16.dp)
                     )
                 }
-                is DescriptionItem.VideoItem -> {
-                    VideoPlayer(videoUri = item.uri)
-                }
+//                is DescriptionItem.VideoItem -> {
+//                    VideoPlayer(videoUri = item.uri)
+//                }
+                is DescriptionItem.VideoItem -> TODO()
             }
         }
     }
@@ -118,19 +107,23 @@ fun parseDescription(description: String): List<DescriptionItem> {
     return items
 }
 
-@Composable
-fun VideoPlayer(videoUri:String){
-    val mediaItem = MediaBrowser.MediaItem.fromUri(videoUri)
-    val player = com.google.android.exoplayer2.ExoPlayer.Builder(LocalContext.current).build()
-    player.setMediaItem(mediaItem)
-    player.prepare()
 
-
-    AndroidView(factory = {
-        StyledPlayerView(it).apply {
-            this.player = player
-        }
-    }, modifier = Modifier
-        .fillMaxWidth()
-        .height(300.dp))
-}
+//@Composable
+//fun VideoPlayer(videoUri: String) {
+//    val context = LocalContext.current
+//    val mediaItem = MediaItem.fromUri(videoUri)
+//    val player = com.google.android.exoplayer2.ExoPlayer.Builder(context).build()
+//    player.setMediaItem(mediaItem)
+//    player.prepare()
+//
+//    AndroidView(
+//        factory = {
+//            StyledPlayerView(it).apply {
+//                this.player = player
+//            }
+//        },
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .height(300.dp)
+//    )
+//}

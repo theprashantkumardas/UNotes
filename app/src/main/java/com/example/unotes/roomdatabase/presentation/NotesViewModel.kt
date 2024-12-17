@@ -1,5 +1,6 @@
 package com.example.unotes.roomdatabase.presentation
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -39,18 +40,13 @@ class NotesViewModel(private val dao: NoteDao) : ViewModel() {
     private val _addEditState = MutableStateFlow(AddEditNoteState())
     val addEditState: StateFlow<AddEditNoteState> = _addEditState.asStateFlow()
 
+
     private var currentDescriptionItems: MutableList<DescriptionItem> =
         mutableListOf(DescriptionItem.TextItem(""))
 
 
     init {
-        getAllNotes()
-    }
-    private fun getAllNotes() {
-        _addEditState.update { it.copy(isLoading = true) }
-        viewModelScope.launch {
-            _addEditState.update { it.copy(isLoading = false) }
-        }
+        currentDescriptionItems = mutableListOf(DescriptionItem.TextItem(""))
     }
 
 
@@ -85,7 +81,6 @@ class NotesViewModel(private val dao: NoteDao) : ViewModel() {
         _addEditState.update { it ->
             it.copy(descriptionItems = currentDescriptionItems)
         }
-
     }
 
     fun onEvent(event: NoteEvent) {
@@ -149,7 +144,7 @@ class NotesViewModel(private val dao: NoteDao) : ViewModel() {
                 onVideoSelected(event.uri)
             }
             is NoteEvent.ClearState ->{
-                _addEditState.update { AddEditNoteState() }
+                _addEditState.update { it.copy(descriptionItems = mutableListOf(DescriptionItem.TextItem(""))) }
                 currentDescriptionItems =
                     mutableListOf(DescriptionItem.TextItem(""))
 
@@ -158,6 +153,8 @@ class NotesViewModel(private val dao: NoteDao) : ViewModel() {
             NoteEvent.SortNotes -> {
                 _isSortedByDateAdded.value = !_isSortedByDateAdded.value
             }
+
+            is NoteEvent.UpdateDescription -> TODO()
         }
     }
 

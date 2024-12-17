@@ -13,6 +13,7 @@ sealed interface NoteEvent {
 
     data class AddImage(val uri: List<String>) : NoteEvent
     data class AddVideo(val uri: List<String>) : NoteEvent
+    data class UpdateDescription(val text: String) : NoteEvent // Added this
 
     object ClearState : NoteEvent
 

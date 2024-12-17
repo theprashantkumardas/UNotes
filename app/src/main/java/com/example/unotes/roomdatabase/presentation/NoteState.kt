@@ -10,16 +10,17 @@ data class NoteState(
     val description: MutableState<String> = mutableStateOf(""),
     val imageUris: List<String>? = null,  // Nullable for optional images
     val videoUris: List<String>? = null,  // Nullable for optional videos
-    val timestamp: MutableState<String> = mutableStateOf(""),
+    val timestamp: Long = 0,
 
 
-)
+    )
 
 data class AddEditNoteState(
     val isLoading: Boolean = false,
     val error: String? = null,
-    val imageUris: List<String> = emptyList(), // Added: List of selected image URIs
-    val videoUris: List<String> = emptyList(), // Added: List of selected video URIs
+    val imageUris: List<String> = emptyList(),
+    val videoUris: List<String> = emptyList(),
+    val descriptionItems: MutableList<DescriptionItem> = mutableListOf(DescriptionItem.TextItem(""))
 )
 
 sealed class DescriptionItem {

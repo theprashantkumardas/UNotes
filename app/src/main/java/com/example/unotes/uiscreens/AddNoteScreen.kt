@@ -4,6 +4,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -75,9 +76,8 @@ fun AddNoteScreen(
 ){
     val note = noteId?.let { id -> state.notes.find { it.id == id } }
     var title by remember { mutableStateOf(note?.title ?: "") }
-//    var description by remember { mutableStateOf(note?.description ?: "") }
+    // var description by remember { mutableStateOf(note?.description ?: "") }
     var descriptionText by remember { mutableStateOf("")}
-
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(),
     ) { uris ->
@@ -93,20 +93,20 @@ fun AddNoteScreen(
             onEvent(NoteEvent.AddVideo(it))
         }
     }
+
     LaunchedEffect(key1 = noteId){
         note?.let {
             title = it.title
+            descriptionText = it.description
             onEvent(NoteEvent.AddVideo(it.videoUris ?: emptyList()))
             onEvent(NoteEvent.AddImage(it.imageUris ?: emptyList()))
         }
     }
-
     if (addEditState.error!=null){
         ErrorDialog(message = addEditState.error) {
             onEvent(NoteEvent.ClearState)
         }
     }
-
 
     Scaffold(
         topBar = {
@@ -120,7 +120,7 @@ fun AddNoteScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { /* do something */ }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Localized description",
@@ -136,7 +136,10 @@ fun AddNoteScreen(
                         MoreOptionsButton(onOptionSelected = { option ->
                             when (option) {
                                 "Delete" -> {
-                                    note?.let { NoteEvent.DeleteNote(it) }?.let { onEvent(it) }
+                                    note?.let {
+                                        onEvent(NoteEvent.DeleteNote(it))
+                                        navController.popBackStack()
+                                    }
                                 }
                                 "Option 2" -> { /* Handle Option 2 */ }
                                 "Option 3" -> { /* Handle Option 3 */ }
@@ -175,15 +178,18 @@ fun AddNoteScreen(
                         navController.popBackStack()
                     }
                 },
-                modifier = Modifier.alpha(if (isSaveEnabled) 1f else 0.3f),
+                modifier = Modifier
+                    .alpha(if (isSaveEnabled && !addEditState.isLoading) 1f else 0.3f)
+                    .then(if (addEditState.isLoading) Modifier.clickable(enabled = false) {} else Modifier),
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
-//                enabled = !addEditState.isLoading
-            ){
-                    Icon(
-                        imageVector = Icons.Rounded.Check,
-                        contentDescription = "Done Button"
-                    )
+
+
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Check,
+                    contentDescription = "Done Button"
+                )
             }
             if (showDialog) {
                 AlertDialogExample(
@@ -196,132 +202,101 @@ fun AddNoteScreen(
             }
         }
     ) { paddingValues ->
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
                 .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
         ) {
-            Column(
+            BasicTextField(
+                value = title,
+                onValueChange = {
+                    title = it
+                },
+                textStyle = TextStyle(
+                    fontSize = 32.sp,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontFamily = satoshiRegular,
+                ),
+                decorationBox = { innerTextField ->
+                    if (title.isEmpty()) {
+                        Text(
+                            text = "Title",
+                            fontSize = 32.sp,
+                            fontFamily = satoshiLight,
+                            color = Color.Gray
+                        )
+                    }
+                    innerTextField()
+                },
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
-                    .padding(top = 20.dp)
-                    .padding(paddingValues),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .background(MaterialTheme.colorScheme.background)
 
-            ) {
-
-                BasicTextField(
-                    value = title,
-                    onValueChange = {
-                        title = it
-                    },
-                    textStyle =  TextStyle(
-                        fontSize = 32.sp,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontFamily = satoshiRegular,
-//                        fontWeight = FontWeight.SemiBold
-                    ),
-                    decorationBox = { innerTextField ->
-                        if (title.isEmpty()) {
-                            Text(
-                                text = "Title",
-                                fontSize = 32.sp,
-                                fontFamily = satoshiLight,
-
-                                color = Color.Gray
-                            )
-                        }
-                        innerTextField()
-                    },
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                    modifier = Modifier
-                        .fillMaxWidth()
-//                        .height(108.dp)
-                        .background(MaterialTheme.colorScheme.background)
-
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                HorizontalDividerExample(text ="")
-                Spacer(modifier = Modifier.height(4.dp))
-                BasicTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    value = descriptionText,
-                    onValueChange = {
-                        descriptionText  = it
-                    },
-                    textStyle =  TextStyle(
-                        fontSize = 20.sp,
-                        fontFamily = satoshiLight,
-                        color = MaterialTheme.colorScheme.onPrimary,
-
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            HorizontalDividerExample(text = "")
+            Spacer(modifier = Modifier.height(4.dp))
+            BasicTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                value = descriptionText,
+                onValueChange = {
+                    descriptionText = it
+                    onEvent(NoteEvent.UpdateDescription(it))
+                },
+                textStyle =  TextStyle(
+                    fontSize = 20.sp,
+                    fontFamily = satoshiLight,
+                    color = MaterialTheme.colorScheme.onPrimary,
 
                     ),
-                    decorationBox = { innerTextField ->
-                        if (descriptionText .isEmpty()) {
-                            Text(
-                                text = "Description",
-                                fontFamily = satoshiLight,
-                                fontSize = 20.sp,
-                                color = Color.Gray
-                            )
-                        }
-                        innerTextField()
-                    },
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                )
-                DescriptionDisplay(description = addEditState.descriptionItems.joinToString(separator = "") { item ->
-                    when (item) {
-                        is DescriptionItem.TextItem -> item.text
-                        is DescriptionItem.ImageItem -> "<image>${item.uri}</image>"
-                        is DescriptionItem.VideoItem -> "<video>${item.uri}</video>"
-                        else -> {}
-                    }
-                })
-                Spacer(modifier = Modifier.height(16.dp))
-                Row {
-                    Button(onClick = {
-                        imagePickerLauncher.launch(
-                            PickVisualMediaRequest(
-                                ActivityResultContracts.PickVisualMedia.ImageOnly
-                            )
+                decorationBox = { innerTextField ->
+                    if (descriptionText.isEmpty()) {
+                        Text(
+                            text = "Description",
+                            fontFamily = satoshiLight,
+                            fontSize = 20.sp,
+                            color = Color.Gray
                         )
-                    }, enabled = !addEditState.isLoading) {
-                        Text("Add Images")
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    innerTextField()
+                },
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            )
+            DescriptionDisplay(description = addEditState.descriptionItems.joinToString(separator = "") { item ->
+                when (item) {
+                    is DescriptionItem.TextItem -> item.text
+                    is DescriptionItem.ImageItem -> "<image>${item.uri}</image>"
+                    is DescriptionItem.VideoItem -> "<video>${item.uri}</video>"
+                }
+            })
 
-                    Button(onClick = {
-                        videoPickerLauncher.launch(
-                            PickVisualMediaRequest(
-                                ActivityResultContracts.PickVisualMedia.VideoOnly
-                            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row {
+                Button(onClick = {
+                    imagePickerLauncher.launch(
+                        PickVisualMediaRequest(
+                            ActivityResultContracts.PickVisualMedia.ImageOnly
                         )
-                    }, enabled = !addEditState.isLoading) {
-                        Text("Add Videos")
-                    }
+                    )
+                }, enabled = !addEditState.isLoading) {
+                    Text("Add Images")
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-                // Show images
-                LazyRow(modifier = Modifier.fillMaxWidth()) {
-                    items(addEditState.imageUris) { uri ->
-                        AsyncImage(model = uri, contentDescription = null, modifier = Modifier.size(80.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                // Show videos
-                LazyRow(modifier = Modifier.fillMaxWidth()) {
-                    items(addEditState.videoUris) { uri ->
-                        AsyncImage(model = uri, contentDescription = null, modifier = Modifier.size(80.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-                }
+                Spacer(modifier = Modifier.width(8.dp))
 
-
+                Button(onClick = {
+                    videoPickerLauncher.launch(
+                        PickVisualMediaRequest(
+                            ActivityResultContracts.PickVisualMedia.VideoOnly
+                        )
+                    )
+                }, enabled = !addEditState.isLoading) {
+                    Text("Add Videos")
+                }
             }
         }
     }
