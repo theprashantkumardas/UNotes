@@ -16,8 +16,9 @@ fun TopAppBarName(){
     Text(
         text = stringResource(id = R.string.app_name),
         modifier = Modifier,
-        fontSize = 24.sp,
-        fontWeight = FontWeight.SemiBold,
+        fontFamily = satoshiBold,
+        fontSize = 40.sp,
+
         color = MaterialTheme.colorScheme.onPrimary
     )
 }

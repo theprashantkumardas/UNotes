@@ -18,7 +18,8 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="U Notes"
-            android:theme="@style/Theme.UNotes">
+            android:theme="@style/Theme.UNotes"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

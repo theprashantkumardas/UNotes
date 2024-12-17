@@ -40,7 +40,7 @@ fun AssistChipExample(tag: String) {
         shape = RoundedCornerShape(24.dp),
         modifier = Modifier.height(36.dp),
         colors = AssistChipDefaults.assistChipColors(
-            containerColor = MaterialTheme.colorScheme.tertiary // Set background color
+            containerColor = MaterialTheme.colorScheme.primary , // Set background color
 
         ),
 
