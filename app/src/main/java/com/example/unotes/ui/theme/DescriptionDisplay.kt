@@ -10,10 +10,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
 import com.example.unotes.roomdatabase.presentation.DescriptionItem
+
+
 
 @Composable
 fun DescriptionDisplay(description: String) {
@@ -41,16 +48,13 @@ fun DescriptionDisplay(description: String) {
                             .padding(16.dp)
                     )
                 }
-//                is DescriptionItem.VideoItem -> {
-//                    VideoPlayer(videoUri = item.uri)
-//                }
-                is DescriptionItem.VideoItem -> TODO()
+                is DescriptionItem.VideoItem -> {
+                    VideoPlayer(videoUri = item.uri)
+                }
             }
         }
     }
 }
-
-
 fun parseDescription(description: String): List<DescriptionItem> {
     val items = mutableListOf<DescriptionItem>()
     var remaining = description
@@ -83,8 +87,9 @@ fun parseDescription(description: String): List<DescriptionItem> {
                 items.add(DescriptionItem.ImageItem(imageUri))
                 remaining = remaining.substring(imageEndIndex + "</image>".length)
 
-            } else{
-                items.add(DescriptionItem.TextItem(remaining))
+            } else {
+                val text = remaining.substring(imageStartIndex)
+                items.add(DescriptionItem.TextItem(text))
                 break
             }
 
@@ -99,7 +104,8 @@ fun parseDescription(description: String): List<DescriptionItem> {
 
             }
             else {
-                items.add(DescriptionItem.TextItem(remaining))
+                val text = remaining.substring(videoStartIndex)
+                items.add(DescriptionItem.TextItem(text))
                 break
             }
         }
@@ -108,22 +114,22 @@ fun parseDescription(description: String): List<DescriptionItem> {
 }
 
 
-//@Composable
-//fun VideoPlayer(videoUri: String) {
-//    val context = LocalContext.current
-//    val mediaItem = MediaItem.fromUri(videoUri)
-//    val player = com.google.android.exoplayer2.ExoPlayer.Builder(context).build()
-//    player.setMediaItem(mediaItem)
-//    player.prepare()
-//
-//    AndroidView(
-//        factory = {
-//            StyledPlayerView(it).apply {
-//                this.player = player
-//            }
-//        },
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .height(300.dp)
-//    )
-//}
+@Composable
+fun VideoPlayer(videoUri: String) {
+    val context = LocalContext.current
+    val mediaItem = MediaItem.fromUri(videoUri)
+    val player = ExoPlayer.Builder(context).build()
+    player.setMediaItem(mediaItem)
+    player.prepare()
+
+    AndroidView(
+        factory = {
+            PlayerView(it).apply {
+                this.player = player
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+    )
+}

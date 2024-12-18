@@ -273,7 +273,11 @@ fun NoteItem(
             Spacer(modifier = Modifier.height(8.dp))
             HorizontalDivider(thickness = 1.dp)
             Spacer(modifier = Modifier.height(8.dp))
-            DescriptionDisplay(description = note.description)
+
+            DescriptionDisplay(
+                description = note.description
+            )
+
             Spacer(modifier = Modifier.height(8.dp))
             Column (
                 modifier = Modifier

@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.EditNote
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,6 +63,7 @@ import com.example.unotes.ui.theme.AlertDialogExample
 import com.example.unotes.ui.theme.DescriptionDisplay
 import com.example.unotes.ui.theme.HorizontalDividerExample
 import com.example.unotes.ui.theme.MoreOptionsButton
+import com.example.unotes.ui.theme.parseDescription
 import com.example.unotes.ui.theme.satoshiLight
 import com.example.unotes.ui.theme.satoshiRegular
 
@@ -69,15 +71,15 @@ import com.example.unotes.ui.theme.satoshiRegular
 @Composable
 fun AddNoteScreen(
     state: NoteState,
-    addEditState : AddEditNoteState,
+    addEditState: AddEditNoteState,
     navController: NavController,
     onEvent: (NoteEvent) -> Unit,
     noteId: Int?
-){
+) {
     val note = noteId?.let { id -> state.notes.find { it.id == id } }
     var title by remember { mutableStateOf(note?.title ?: "") }
-    // var description by remember { mutableStateOf(note?.description ?: "") }
     var descriptionText by remember { mutableStateOf("")}
+
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(),
     ) { uris ->
@@ -93,16 +95,31 @@ fun AddNoteScreen(
             onEvent(NoteEvent.AddVideo(it))
         }
     }
+    fun parseAndSetDescription(description: String) {
+        val items = parseDescription(description)
+        var tempDescriptionText = ""
+        items.forEach { item ->
+            when(item){
+                is DescriptionItem.TextItem ->{
+                    tempDescriptionText += item.text
+                    onEvent(NoteEvent.UpdateDescription(item.text))
+                }
+
+                is DescriptionItem.ImageItem -> onEvent(NoteEvent.AddImage(listOf(item.uri)))
+                is DescriptionItem.VideoItem -> onEvent(NoteEvent.AddVideo(listOf(item.uri)))
+            }
+        }
+        descriptionText = tempDescriptionText
+    }
 
     LaunchedEffect(key1 = noteId){
         note?.let {
             title = it.title
             descriptionText = it.description
-            onEvent(NoteEvent.AddVideo(it.videoUris ?: emptyList()))
-            onEvent(NoteEvent.AddImage(it.imageUris ?: emptyList()))
+            parseAndSetDescription(it.description)
         }
     }
-    if (addEditState.error!=null){
+    if (addEditState.error != null) {
         ErrorDialog(message = addEditState.error) {
             onEvent(NoteEvent.ClearState)
         }
@@ -183,8 +200,6 @@ fun AddNoteScreen(
                     .then(if (addEditState.isLoading) Modifier.clickable(enabled = false) {} else Modifier),
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
-
-
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Check,
@@ -273,9 +288,7 @@ fun AddNoteScreen(
                     is DescriptionItem.VideoItem -> "<video>${item.uri}</video>"
                 }
             })
-
             Spacer(modifier = Modifier.height(16.dp))
-
             Row {
                 Button(onClick = {
                     imagePickerLauncher.launch(

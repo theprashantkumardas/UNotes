@@ -1,25 +1,23 @@
 package com.example.unotes.roomdatabase.presentation
 
 import android.annotation.SuppressLint
-import android.util.Log
-import androidx.compose.runtime.MutableState
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.unotes.roomdatabase.data.Note
 import com.example.unotes.roomdatabase.data.NoteDao
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
-import com.example.unotes.roomdatabase.data.Note
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class NotesViewModel(private val dao: NoteDao) : ViewModel() {
 
@@ -46,7 +44,7 @@ class NotesViewModel(private val dao: NoteDao) : ViewModel() {
 
 
     init {
-        currentDescriptionItems = mutableListOf(DescriptionItem.TextItem(""))
+        currentDescriptionItems =  mutableListOf(DescriptionItem.TextItem(""))
     }
 
 
@@ -69,19 +67,22 @@ class NotesViewModel(private val dao: NoteDao) : ViewModel() {
     }
 
 
-    fun updateDescription(text: String) {
-        if(currentDescriptionItems.isNotEmpty() && currentDescriptionItems.last() is DescriptionItem.TextItem)
-        {
-            val lastItem = currentDescriptionItems.removeLast() as DescriptionItem.TextItem
-            currentDescriptionItems.add(DescriptionItem.TextItem(lastItem.text + text))
 
-        } else{
-            currentDescriptionItems.add(DescriptionItem.TextItem(text))
-        }
+
+    @SuppressLint("NewApi")
+    fun updateDescription(text: String) {
+//        if (currentDescriptionItems.isNotEmpty() && currentDescriptionItems.last() is DescriptionItem.TextItem) {
+//            val lastItem = currentDescriptionItems.removeLast() as DescriptionItem.TextItem
+//            currentDescriptionItems.add(DescriptionItem.TextItem(lastItem.text + text))
+//
+//        } else {
+//            currentDescriptionItems.add(DescriptionItem.TextItem(text))
+//        }
         _addEditState.update { it ->
             it.copy(descriptionItems = currentDescriptionItems)
         }
     }
+
 
     fun onEvent(event: NoteEvent) {
         when (event) {
@@ -100,8 +101,8 @@ class NotesViewModel(private val dao: NoteDao) : ViewModel() {
                         dao.upsertNote(note)
                         _addEditState.update { it.copy(isLoading = false) }
                         clearInputs()
-                    }catch (e:Exception){
-                        _addEditState.update { it.copy(isLoading = false, error = e.message ) }
+                    } catch (e: Exception) {
+                        _addEditState.update { it.copy(isLoading = false, error = e.message) }
                     }
 
                 }
@@ -124,8 +125,8 @@ class NotesViewModel(private val dao: NoteDao) : ViewModel() {
                             _addEditState.update { it.copy(isLoading = false) }
 
                         }
-                    } catch (e:Exception){
-                        _addEditState.update { it.copy(isLoading = false, error = e.message ) }
+                    } catch (e: Exception) {
+                        _addEditState.update { it.copy(isLoading = false, error = e.message) }
                     }
 
                 }
@@ -137,24 +138,26 @@ class NotesViewModel(private val dao: NoteDao) : ViewModel() {
                     dao.deleteNote(event.note)
                 }
             }
-            is NoteEvent.AddImage ->{
+            is NoteEvent.AddImage -> {
                 onImageSelected(event.uri)
             }
             is NoteEvent.AddVideo -> {
                 onVideoSelected(event.uri)
             }
-            is NoteEvent.ClearState ->{
+            is NoteEvent.ClearState -> {
                 _addEditState.update { it.copy(descriptionItems = mutableListOf(DescriptionItem.TextItem(""))) }
                 currentDescriptionItems =
                     mutableListOf(DescriptionItem.TextItem(""))
 
             }
+            is NoteEvent.UpdateDescription -> {
+                updateDescription(event.text)
+            }
+
 
             NoteEvent.SortNotes -> {
                 _isSortedByDateAdded.value = !_isSortedByDateAdded.value
             }
-
-            is NoteEvent.UpdateDescription -> TODO()
         }
     }
 

@@ -65,8 +65,8 @@ dependencies {
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
 
-    implementation("androidx.media3:media3-exoplayer:1.1.1")
-    implementation("androidx.media3:media3-ui:1.1.1")
+    implementation(libs.androidx.media3.exoplayer.v111)
+    implementation(libs.androidx.media3.ui.v111)
 
     // Extended Icons
     implementation(libs.androidx.material.icons.extended.v154)
