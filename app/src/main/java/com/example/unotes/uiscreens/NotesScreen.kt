@@ -23,7 +23,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -44,12 +44,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.unotes.R
 import com.example.unotes.roomdatabase.data.Note
 import com.example.unotes.roomdatabase.presentation.NoteEvent
 import com.example.unotes.roomdatabase.presentation.NoteState
@@ -57,8 +60,11 @@ import com.example.unotes.ui.theme.AssistChipAddOnlyBtn
 import com.example.unotes.ui.theme.AssistChipExample
 import com.example.unotes.ui.theme.DescriptionDisplay
 import com.example.unotes.ui.theme.MoreOptionsButton
+import com.example.unotes.ui.theme.generatePdf
 import com.example.unotes.ui.theme.satoshiLight
 import com.example.unotes.ui.theme.satoshiRegular
+import com.example.unotes.ui.theme.sharePdf
+import com.example.unotes.ui.theme.shareText
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -74,6 +80,14 @@ fun NotesScreen(
 //    var isSearchActive by remember { mutableStateOf(false) }
     var isSearchExpanded by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+
+
+
+    // Filtered notes based on search query
+    val filteredNotes = state.notes.filter {
+        it.title.contains(searchQuery, ignoreCase = true) ||
+                it.description.contains(searchQuery, ignoreCase = true)
+    }
 
     Scaffold(
         topBar = {
@@ -107,7 +121,7 @@ fun NotesScreen(
                             )
                             IconButton(onClick = { isSearchExpanded = !isSearchExpanded }) {
                                 Icon(
-                                    imageVector = Icons.Default.Search,
+                                    painter = painterResource(id = R.drawable.search),
                                     contentDescription = "Search",
                                     Modifier.size(44.dp)
                                 )
@@ -122,7 +136,11 @@ fun NotesScreen(
                         BasicTextField(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .border(1.dp, MaterialTheme.colorScheme.outline , shape = RoundedCornerShape(24.dp))
+                                .border(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.outline,
+                                    shape = RoundedCornerShape(24.dp)
+                                )
                                 .padding(horizontal = 16.dp)
                                 .height(56.dp)
                                 .align(alignment = Alignment.CenterVertically),
@@ -136,18 +154,21 @@ fun NotesScreen(
                                 color = MaterialTheme.colorScheme.onPrimary,
                             ),
                             decorationBox = { innerTextField ->
-                                if( searchQuery.isEmpty()) {
-                                    Text(
-                                        text = "Search Notes...",
-                                        fontFamily = satoshiLight,
-                                        fontSize = 20.sp,
-                                        color = Color.Gray,
-                                        modifier = Modifier.align(alignment = Alignment.CenterVertically),
-
-
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (searchQuery.isEmpty()) {
+                                        Text(
+                                            text = "Search Notes...",
+                                            fontFamily = satoshiLight,
+                                            fontSize = 20.sp,
+                                            color = Color.Gray
                                         )
+                                    }
+                                    innerTextField()
+
                                 }
-                                innerTextField()
                             },
 
                             )
@@ -184,6 +205,7 @@ fun NotesScreen(
 //                    Text(text = state.error)
 //                }
 //            } else {
+            Spacer(modifier = Modifier.height(24.dp))
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -196,13 +218,51 @@ fun NotesScreen(
                             tag = "All Notes",
                         )
                     }
-                    items(state.notes.map { it.title }) { tag ->
-                        AssistChipExample(tag)
+                    item {
+                        AssistChipExample(
+                            tag = "Work",
+                        )
                     }
                     item {
-                        AssistChipAddOnlyBtn()
+                        AssistChipExample(
+                            tag = "Home",
+                        )
+                    }
+                    item {
+                        AssistChipExample(
+                            tag = "Private",
+                        )
+                    }
+
+//                    items(state.notes.map { it.title }) { tag ->
+//                        AssistChipExample(tag)
+//                    }
+//                    item {
+//                        AssistChipAddOnlyBtn()
+//                    }
+
+
+                }
+            Spacer(modifier = Modifier.height(16.dp))
+                // Display filtered notes
+                LazyVerticalStaggeredGrid(
+                    columns = StaggeredGridCells.Fixed(2),
+                    contentPadding = PaddingValues(0.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalItemSpacing = 16.dp,
+                ) {
+                    items(filteredNotes.size) { index ->
+                        NoteItem(
+                            note = filteredNotes[index], // Use filtered notes here
+                            onEvent = onEvent,
+                            navController = navController
+                        )
                     }
                 }
+
                 LazyVerticalStaggeredGrid(
                     columns = StaggeredGridCells.Fixed(2),
                     contentPadding = PaddingValues(0.dp),
@@ -229,9 +289,13 @@ fun NotesScreen(
 fun NoteItem(
     note: Note,
     onEvent: (NoteEvent) -> Unit,
-    navController: NavController
+    navController: NavController,
+
 ){
     val formattedDate = formatTimestamp(note.timestamp)
+    var title by remember { mutableStateOf(note.title ?: "") }
+    var descriptionText by remember { mutableStateOf(note.title ?: "")}
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -255,7 +319,7 @@ fun NoteItem(
                 Text(
                     text = note.title,
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = satoshiLight,
                     color = MaterialTheme.colorScheme.onPrimary,
                     maxLines = 2, // Limit the title to one line
                     overflow = TextOverflow.Ellipsis
@@ -265,17 +329,36 @@ fun NoteItem(
                         "Delete" -> {
                             onEvent(NoteEvent.DeleteNote(note))
                         }
-                        "Option 2" -> { /* Handle Option 2 */ }
-                        "Option 3" -> { /* Handle Option 3 */ }
+                        "Share as PDF" -> {
+                            val pdfFile = generatePdf(
+                                context = navController.context,
+                                noteTitle = title,
+                                noteDescription = descriptionText
+                            )
+                            sharePdf(context = navController.context, pdfFile = pdfFile)
+                        }
+                        "Share as Text" -> {
+                            shareText(
+                                context = navController.context,
+                                title = title,
+                                description = descriptionText
+                            )
+                        }
                     }
                 })
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             HorizontalDivider(thickness = 1.dp)
             Spacer(modifier = Modifier.height(8.dp))
 
-            DescriptionDisplay(
-                description = note.description
+            Text(
+                text = note.description,
+                fontSize = 16.sp,
+                fontFamily = satoshiLight,
+                color = Color.White,
+                lineHeight = 20.sp,
+                maxLines = 8, // Limit the title to one line
+                overflow = TextOverflow.Ellipsis
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -287,7 +370,7 @@ fun NoteItem(
                 Text(
                     text = formattedDate,
                     fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                    color = Color.Gray
                 )
             }
         }
@@ -300,7 +383,5 @@ fun formatTimestamp(timestamp: Long): String {
 //    val dateFormat = SimpleDateFormat("hh:mm a dd MMM yy", Locale.getDefault())
     return dateFormat.format(Date(timestamp))
 }
-
-
 
 

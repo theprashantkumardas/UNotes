@@ -56,6 +56,8 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
+    implementation(libs.itextpdf)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit.v115)

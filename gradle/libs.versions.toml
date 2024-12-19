@@ -79,7 +79,7 @@ ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
-
+itextpdf = "com.itextpdf:itextpdf:5.5.13.2"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

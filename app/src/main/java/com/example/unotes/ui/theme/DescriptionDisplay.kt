@@ -23,8 +23,10 @@ import com.example.unotes.roomdatabase.presentation.DescriptionItem
 
 
 @Composable
-fun DescriptionDisplay(description: String) {
-    val items = parseDescription(description)
+fun DescriptionDisplay(description: String?) { // Updated: Accept nullable description
+    val items = description?.let { parseDescription(it) } ?: listOf(
+        DescriptionItem.TextItem("No description available") // Fallback for null/empty description
+    )
     Column(modifier = Modifier.fillMaxWidth()) {
         items.forEach { item ->
             when (item) {
@@ -55,6 +57,7 @@ fun DescriptionDisplay(description: String) {
         }
     }
 }
+
 fun parseDescription(description: String): List<DescriptionItem> {
     val items = mutableListOf<DescriptionItem>()
     var remaining = description
@@ -68,44 +71,42 @@ fun parseDescription(description: String): List<DescriptionItem> {
             else -> minOf(imageStartIndex, videoStartIndex)
         }
 
-
         if (nextTagIndex == -1) {
-            items.add(DescriptionItem.TextItem(remaining))
+            // Add remaining text as a TextItem
+            items.add(DescriptionItem.TextItem(remaining.trim()))
             break
         } else {
             if (nextTagIndex > 0) {
-                val text = remaining.substring(0, nextTagIndex)
-                items.add(DescriptionItem.TextItem(text))
+                // Extract and add text before the tag
+                val text = remaining.substring(0, nextTagIndex).trim()
+                if (text.isNotEmpty()) {
+                    items.add(DescriptionItem.TextItem(text))
+                }
             }
         }
 
         if (nextTagIndex == imageStartIndex) {
             val imageEndIndex = remaining.indexOf("</image>", imageStartIndex)
             if (imageEndIndex != -1) {
-                val imageUri =
-                    remaining.substring(imageStartIndex + "<image>".length, imageEndIndex)
-                items.add(DescriptionItem.ImageItem(imageUri))
+                val imageUri = remaining.substring(imageStartIndex + "<image>".length, imageEndIndex).trim()
+                if (imageUri.isNotEmpty()) { // Updated: Ensure valid URI
+                    items.add(DescriptionItem.ImageItem(imageUri))
+                }
                 remaining = remaining.substring(imageEndIndex + "</image>".length)
-
             } else {
-                val text = remaining.substring(imageStartIndex)
-                items.add(DescriptionItem.TextItem(text))
+                items.add(DescriptionItem.TextItem(remaining.trim()))
                 break
             }
-
-
-        } else if (nextTagIndex == videoStartIndex){
+        } else if (nextTagIndex == videoStartIndex) {
             val videoEndIndex = remaining.indexOf("</video>", videoStartIndex)
             if (videoEndIndex != -1) {
-                val videoUri =
-                    remaining.substring(videoStartIndex + "<video>".length, videoEndIndex)
-                items.add(DescriptionItem.VideoItem(videoUri))
+                val videoUri = remaining.substring(videoStartIndex + "<video>".length, videoEndIndex).trim()
+                if (videoUri.isNotEmpty()) { // Updated: Ensure valid URI
+                    items.add(DescriptionItem.VideoItem(videoUri))
+                }
                 remaining = remaining.substring(videoEndIndex + "</video>".length)
-
-            }
-            else {
-                val text = remaining.substring(videoStartIndex)
-                items.add(DescriptionItem.TextItem(text))
+            } else {
+                items.add(DescriptionItem.TextItem(remaining.trim()))
                 break
             }
         }

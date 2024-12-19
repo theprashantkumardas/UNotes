@@ -2,6 +2,7 @@ package com.example.unotes.ui.theme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -28,7 +29,11 @@ import androidx.compose.ui.unit.dp
 fun AssistChipExample(tag: String) {
     AssistChip(
         onClick = { /* Handle tag click here */ },
-        label = { Text(tag) },
+        label = { Text(
+                tag ,
+                maxLines = 1 ,
+                fontFamily = satoshiLight,
+            ) },
 //        leadingIcon = {
 //            Icon(
 //                imageVector = Icons.Filled.Settings,
@@ -39,13 +44,27 @@ fun AssistChipExample(tag: String) {
 
         shape = RoundedCornerShape(24.dp),
         modifier = Modifier.height(36.dp),
-        colors = AssistChipDefaults.assistChipColors(
-            containerColor = MaterialTheme.colorScheme.primary , // Set background color
-
-        ),
+//        colors = AssistChipDefaults.assistChipColors(
+//            containerColor = MaterialTheme.colorScheme.primary , // Set background color
+//
+//        ),
 
     )
 }
+//    Box(
+//        modifier = Modifier
+////            .size(48.dp) // Set a fixed size for the rounded box
+//            .height(36.dp)
+//            .width(50.dp)
+//            .background(
+//                color = MaterialTheme.colorScheme.primary, // Background color
+//                shape = RoundedCornerShape(24.dp) // Rounded corners
+//            ),
+//        contentAlignment = Alignment.Center // Center the icon inside the box
+//    ){
+//
+//    }
+
 
 @Composable
 fun AssistChipAddOnlyBtn(){
@@ -64,7 +83,7 @@ fun AssistChipAddOnlyBtn(){
         Icon(
             imageVector = Icons.Filled.Add, // Icon to display
             contentDescription = "Assist Chip Icon",
-            modifier = Modifier, // Adjust icon size
+            modifier = Modifier ,
             tint = MaterialTheme.colorScheme.onPrimary // Icon color
         )
     }

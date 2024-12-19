@@ -97,10 +97,10 @@ fun MoreOptionsButton(onOptionSelected: (String) -> Unit) {
                     // Option 2
                     Row {
                         Text(
-                            text = "Option 2",
+                            text = "Share as PDF",
                             modifier = Modifier
                                 .clickable {
-                                    onOptionSelected("Option 1")
+                                    onOptionSelected("Share as PDF")
                                     expanded = false
                                 }
                                 .padding(8.dp)
@@ -110,10 +110,10 @@ fun MoreOptionsButton(onOptionSelected: (String) -> Unit) {
                     // Option 3
                     Row {
                         Text(
-                            text = "Option 3",
+                            text = "Share as Text",
                             modifier = Modifier
                                 .clickable {
-                                    onOptionSelected("Option 1")
+                                    onOptionSelected("Share as Text")
                                     expanded = false
                                 }
                                 .padding(8.dp)

@@ -1,5 +1,6 @@
 package com.example.unotes.uiscreens
 
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,8 +21,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.rounded.AddAPhoto
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.EditNote
+import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -52,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
@@ -63,9 +67,12 @@ import com.example.unotes.ui.theme.AlertDialogExample
 import com.example.unotes.ui.theme.DescriptionDisplay
 import com.example.unotes.ui.theme.HorizontalDividerExample
 import com.example.unotes.ui.theme.MoreOptionsButton
+import com.example.unotes.ui.theme.generatePdf
 import com.example.unotes.ui.theme.parseDescription
 import com.example.unotes.ui.theme.satoshiLight
 import com.example.unotes.ui.theme.satoshiRegular
+import com.example.unotes.ui.theme.sharePdf
+import com.example.unotes.ui.theme.shareText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -158,8 +165,25 @@ fun AddNoteScreen(
                                         navController.popBackStack()
                                     }
                                 }
-                                "Option 2" -> { /* Handle Option 2 */ }
-                                "Option 3" -> { /* Handle Option 3 */ }
+                                "Share as PDF" -> {
+                                    note?.let {
+                                        val pdfFile = generatePdf(
+                                            context = navController.context,
+                                            noteTitle = title,
+                                            noteDescription = descriptionText
+                                        )
+                                        sharePdf(context = navController.context, pdfFile = pdfFile)
+                                    }
+                                }
+                                "Share as Text" -> {
+                                    note?.let {
+                                        shareText(
+                                            context = navController.context,
+                                            title = title,
+                                            description = descriptionText
+                                        )
+                                    }
+                                }
                             }
                         })
                     }
@@ -169,53 +193,94 @@ fun AddNoteScreen(
 
         },
         floatingActionButton = {
-            var showDialog by remember { mutableStateOf(false) }
-            val isSaveEnabled = title.isNotEmpty() && descriptionText.isNotEmpty()
-            FloatingActionButton(
-                onClick = {
-                    if (noteId == null) {
-                        if (title.isNotEmpty() && descriptionText.isNotEmpty()) {
-                            onEvent(
-                                NoteEvent.SaveNote(
-                                    title = title,
-                                    description = descriptionText
+            Column(
+                modifier = Modifier
+            ) {
+                var showDialog by remember { mutableStateOf(false) }
+                val isSaveEnabled = title.isNotEmpty() && descriptionText.isNotEmpty()
+//                Column {
+//                    Button(onClick = {
+//                        imagePickerLauncher.launch(
+//                            PickVisualMediaRequest(
+//                                ActivityResultContracts.PickVisualMedia.ImageOnly
+//                            )
+//                        )
+//                    },
+//                        enabled = !addEditState.isLoading) {
+//                        Icon(
+//                            imageVector = Icons.Rounded.AddAPhoto,
+//                            contentDescription = "Add Image"
+//                        )
+////                        Text("Add Images")
+//                    }
+//                    Spacer(modifier = Modifier.height(8.dp))
+//
+//                    Button(onClick = {
+//                        videoPickerLauncher.launch(
+//                            PickVisualMediaRequest(
+//                                ActivityResultContracts.PickVisualMedia.VideoOnly
+//                            )
+//                        )
+//                    }, enabled = !addEditState.isLoading) {
+//                        Icon(
+//                            imageVector = Icons.Rounded.VideoLibrary,
+//                            contentDescription = "Done Button"
+//                        )
+//                    }
+//                }
+                Spacer(modifier = Modifier.height(8.dp))
+                FloatingActionButton(
+                    onClick = {
+                        if (noteId == null) {
+                            if (title.isNotEmpty() && descriptionText.isNotEmpty()) {
+                                onEvent(
+                                    NoteEvent.SaveNote(
+                                        title = title,
+                                        description = descriptionText
+                                    )
                                 )
-                            )
+                                navController.popBackStack()
+                            }
+                            else {
+                                showDialog = true
+                            }
+                        } else {
+                            onEvent(NoteEvent.UpdateNote(
+                                noteId = noteId,
+                                title = title,
+                                description = descriptionText
+                            ))
                             navController.popBackStack()
                         }
-                        else {
-                            showDialog = true
-                        }
-                    } else {
-                        onEvent(NoteEvent.UpdateNote(
-                            noteId = noteId,
-                            title = title,
-                            description = descriptionText
-                        ))
-                        navController.popBackStack()
-                    }
-                },
-                modifier = Modifier
-                    .alpha(if (isSaveEnabled && !addEditState.isLoading) 1f else 0.3f)
-                    .then(if (addEditState.isLoading) Modifier.clickable(enabled = false) {} else Modifier),
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Check,
-                    contentDescription = "Done Button"
-                )
+                    },
+                    modifier = Modifier
+//                        .alpha(if (isSaveEnabled && !addEditState.isLoading) 1f else 0.3f)
+                        .then(if (addEditState.isLoading) Modifier.clickable(enabled = false) {} else Modifier),
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Check,
+                        contentDescription = "Done Button"
+                    )
+                }
+                if (showDialog) {
+                    AlertDialogExample(
+                        onDismissRequest = { showDialog = false },
+                        onConfirmation = { showDialog = false },
+                        dialogTitle = "Empty Fields",
+                        dialogText = "Please enter both a title and description before saving the note.",
+                        icon = Icons.Rounded.EditNote
+                    )
+                }
+
+
             }
-            if (showDialog) {
-                AlertDialogExample(
-                    onDismissRequest = { showDialog = false },
-                    onConfirmation = { showDialog = false },
-                    dialogTitle = "Empty Fields",
-                    dialogText = "Please enter both a title and description before saving the note.",
-                    icon = Icons.Rounded.EditNote
-                )
-            }
+
+
+
         }
+
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -281,36 +346,15 @@ fun AddNoteScreen(
                 },
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             )
-            DescriptionDisplay(description = addEditState.descriptionItems.joinToString(separator = "") { item ->
-                when (item) {
-                    is DescriptionItem.TextItem -> item.text
-                    is DescriptionItem.ImageItem -> "<image>${item.uri}</image>"
-                    is DescriptionItem.VideoItem -> "<video>${item.uri}</video>"
-                }
-            })
+//            DescriptionDisplay(description = addEditState.descriptionItems.joinToString(separator = "") { item ->
+//                when (item) {
+//                    is DescriptionItem.TextItem -> item.text
+//                    is DescriptionItem.ImageItem -> "<image>${item.uri}</image>"
+//                    is DescriptionItem.VideoItem -> "<video>${item.uri}</video>"
+//                }
+//            })
             Spacer(modifier = Modifier.height(16.dp))
-            Row {
-                Button(onClick = {
-                    imagePickerLauncher.launch(
-                        PickVisualMediaRequest(
-                            ActivityResultContracts.PickVisualMedia.ImageOnly
-                        )
-                    )
-                }, enabled = !addEditState.isLoading) {
-                    Text("Add Images")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
 
-                Button(onClick = {
-                    videoPickerLauncher.launch(
-                        PickVisualMediaRequest(
-                            ActivityResultContracts.PickVisualMedia.VideoOnly
-                        )
-                    )
-                }, enabled = !addEditState.isLoading) {
-                    Text("Add Videos")
-                }
-            }
         }
     }
 }

@@ -90,7 +90,7 @@ class NotesViewModel(private val dao: NoteDao) : ViewModel() {
                 _addEditState.update { it.copy(isLoading = true, error = null) }
                 val note = Note(
                     title = event.title,
-                    description = getUpdatedDescription(),
+                    description = event.description,
                     imageUris = _addEditState.value.imageUris, // Use selected image URIs
                     videoUris = _addEditState.value.videoUris, // Use selected video URIs
                     dateAdded = System.currentTimeMillis(),
@@ -116,7 +116,7 @@ class NotesViewModel(private val dao: NoteDao) : ViewModel() {
                         existingNote?.let {
                             val updatedNote = it.copy(
                                 title = event.title,
-                                description = getUpdatedDescription(),
+                                description = event.description,
                                 imageUris = _addEditState.value.imageUris,
                                 videoUris = _addEditState.value.videoUris,
                                 timestamp = System.currentTimeMillis()
@@ -148,6 +148,7 @@ class NotesViewModel(private val dao: NoteDao) : ViewModel() {
                 _addEditState.update { it.copy(descriptionItems = mutableListOf(DescriptionItem.TextItem(""))) }
                 currentDescriptionItems =
                     mutableListOf(DescriptionItem.TextItem(""))
+
 
             }
             is NoteEvent.UpdateDescription -> {

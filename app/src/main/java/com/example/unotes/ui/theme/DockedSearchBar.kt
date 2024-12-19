@@ -1,3 +1,4 @@
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,12 +20,13 @@ fun DockedSearchBarSample(
     onQueryChange: (String) -> Unit,
     active: Boolean,
     onActiveChange: (Boolean) -> Unit,
-    placeholder: @Composable (() -> Unit) = { Text("Search...") },
+    placeholder: @Composable (() -> Unit) = { Text("Search ...") },
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.tertiary)
 
     ){
         DockedSearchBar(
