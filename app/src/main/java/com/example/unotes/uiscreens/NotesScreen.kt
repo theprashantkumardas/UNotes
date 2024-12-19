@@ -15,15 +15,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -46,9 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -56,9 +51,7 @@ import com.example.unotes.R
 import com.example.unotes.roomdatabase.data.Note
 import com.example.unotes.roomdatabase.presentation.NoteEvent
 import com.example.unotes.roomdatabase.presentation.NoteState
-import com.example.unotes.ui.theme.AssistChipAddOnlyBtn
 import com.example.unotes.ui.theme.AssistChipExample
-import com.example.unotes.ui.theme.DescriptionDisplay
 import com.example.unotes.ui.theme.MoreOptionsButton
 import com.example.unotes.ui.theme.generatePdf
 import com.example.unotes.ui.theme.satoshiLight
@@ -380,7 +373,7 @@ fun NoteItem(
 
 fun formatTimestamp(timestamp: Long): String {
     val dateFormat = SimpleDateFormat("dd MMM yy", Locale.getDefault())
-//    val dateFormat = SimpleDateFormat("hh:mm a dd MMM yy", Locale.getDefault())
+
     return dateFormat.format(Date(timestamp))
 }
 
