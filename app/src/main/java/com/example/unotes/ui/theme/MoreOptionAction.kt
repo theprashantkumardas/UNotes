@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -72,9 +73,14 @@ fun MoreOptionsButton(onOptionSelected: (String) -> Unit) {
             ) {
                 Column(
                     modifier = Modifier
+                        .shadow(
+                            elevation = 8.dp, // Shadow elevation
+                            shape = RoundedCornerShape(16.dp), // Rounded corners for shadow
+                            clip = true // Ensures the shadow respects the shape
+                        )
                         .background(MaterialTheme.colorScheme.tertiary)
 //                        .clip(shape = RoundedCornerShape(24.dp))
-                        .border(width = 1.dp, color = MaterialTheme.colorScheme.primary)
+
                         .padding(8.dp), // Add some padding inside the popup
 
                     verticalArrangement = Arrangement.spacedBy(8.dp),

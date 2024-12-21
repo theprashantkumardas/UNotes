@@ -63,7 +63,7 @@ import com.example.unotes.roomdatabase.presentation.AddEditNoteState
 import com.example.unotes.roomdatabase.presentation.DescriptionItem
 import com.example.unotes.roomdatabase.presentation.NoteEvent
 import com.example.unotes.roomdatabase.presentation.NoteState
-import com.example.unotes.ui.theme.AlertDialogExample
+import com.example.unotes.ui.theme.CustomAlertDialog
 import com.example.unotes.ui.theme.DescriptionDisplay
 import com.example.unotes.ui.theme.HorizontalDividerExample
 import com.example.unotes.ui.theme.MoreOptionsButton
@@ -265,12 +265,13 @@ fun AddNoteScreen(
                     )
                 }
                 if (showDialog) {
-                    AlertDialogExample(
+                    CustomAlertDialog(
                         onDismissRequest = { showDialog = false },
-                        onConfirmation = { showDialog = false },
-                        dialogTitle = "Empty Fields",
-                        dialogText = "Please enter both a title and description before saving the note.",
-                        icon = Icons.Rounded.EditNote
+                        message = "Please enter both a title and description before saving the note.",
+                        onConfirm = {
+                            // Handle OK button click
+                            showDialog = false
+                        }
                     )
                 }
 

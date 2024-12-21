@@ -10,7 +10,7 @@ val Orange = Color(0xFFFE6902)
 val contenttext = Color(0xFFFFD78A)
 
 val notesBackground = Color(0xFF1F1F1F)
-val background = Color(0xFF0C090C)
+val background = Color(0xFF000000)
 val white = Color((0xFFFFFFFF))
 
 

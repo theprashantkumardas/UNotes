@@ -1,5 +1,6 @@
 package com.example.unotes.uiscreens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -74,6 +75,10 @@ fun NotesScreen(
     var isSearchExpanded by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
+    // BackHandler to handle back press when the search box is expanded
+    BackHandler(enabled = isSearchExpanded) {
+        isSearchExpanded = false // Collapse the search box on back press
+    }
 
 
     // Filtered notes based on search query
@@ -128,11 +133,12 @@ fun NotesScreen(
                     if (isSearchExpanded) {
                         BasicTextField(
                             modifier = Modifier
+                                .background(color = Color.Black)
                                 .fillMaxWidth()
                                 .border(
                                     1.dp,
                                     MaterialTheme.colorScheme.outline,
-                                    shape = RoundedCornerShape(24.dp)
+                                    shape = RoundedCornerShape(52.dp)
                                 )
                                 .padding(horizontal = 16.dp)
                                 .height(56.dp)
@@ -148,8 +154,8 @@ fun NotesScreen(
                             ),
                             decorationBox = { innerTextField ->
                                 Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.CenterStart
                                 ) {
                                     if (searchQuery.isEmpty()) {
                                         Text(
@@ -288,7 +294,7 @@ fun NoteItem(
 ){
     val formattedDate = formatTimestamp(note.timestamp)
     var title by remember { mutableStateOf(note.title ?: "") }
-    var descriptionText by remember { mutableStateOf(note.title ?: "")}
+    var descriptionText by remember { mutableStateOf(note.description ?: "")}
 
     Row(
         modifier = Modifier

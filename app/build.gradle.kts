@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
     implementation(libs.itextpdf)
+    implementation(libs.androidx.storage)
 
 
     testImplementation(libs.junit)
@@ -69,6 +70,8 @@ dependencies {
 
     implementation(libs.androidx.media3.exoplayer.v111)
     implementation(libs.androidx.media3.ui.v111)
+    implementation(libs.androidx.core.splashscreen)
+
 
     // Extended Icons
     implementation(libs.androidx.material.icons.extended.v154)

@@ -2,6 +2,7 @@ package com.example.unotes
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.window.SplashScreen
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,7 +10,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavType
@@ -27,11 +32,15 @@ import com.example.unotes.uiscreens.NotesScreen
 class MainActivity : ComponentActivity() {
     @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
         super.onCreate(savedInstanceState)
         // Make the notification bar black
         WindowCompat.setDecorFitsSystemWindows(window, false) // Adjust content layout
         window.statusBarColor = android.graphics.Color.BLACK // Set color to black
+        installSplashScreen()
         setContent {
+
             UNotesTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -59,6 +68,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun NoteApp(viewModel: NotesViewModel){
     val navController = rememberNavController()
+
+
 
     NavHost(navController = navController, startDestination = "notes_screen"){
         composable("notes_screen"){

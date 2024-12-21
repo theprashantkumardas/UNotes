@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,7 +27,7 @@ fun DockedSearchBarSample(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.tertiary)
+            .background(color = Color.Black)
 
     ){
         DockedSearchBar(
@@ -42,7 +43,7 @@ fun DockedSearchBarSample(
                     contentDescription = "Search Icon"
                 )
             },
-            modifier = modifier.padding(8.dp),
+            modifier = modifier.background(color = Color.Black).padding(8.dp),
             shape = RoundedCornerShape(24.dp),
         ) {
             // Optional content to display below the search bar when active
@@ -50,6 +51,7 @@ fun DockedSearchBarSample(
                 SearchSuggestions(onSuggestionClick = { suggestion ->
                     onQueryChange(suggestion)
                     onActiveChange(false) // Close the search bar
+
                 })
             }
         }
